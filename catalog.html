@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Anime Shop" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <title>Anime Katalog | Figurkalar va Anime Mahsulotlari | Anime Shop Uzbekistan</title>
+    <meta
+      name="description"
+      content="Anime Shop Uzbekistan katalogi — Naruto, Gojo, Itachi va boshqa anime figurkalar, merch, aksessuarlar va sovg‘alar. Sevimli anime mahsulotlaringizni onlayn tanlang."
+    />
+    
+    <link rel="stylesheet" href="css/output.css" />
+    <link rel="stylesheet" href="css/theme.css" />
+  </head>
+  <body class="anime-bg text-white">
+    <!-- ====== NAVBAR ====== -->
+    <header class="fixed top-0 z-50 flex h-14 w-full items-center border-b border-slate-800 bg-slate-950/95 px-4 md:hidden">
+      <a href="index.html" class="text-lg font-semibold text-white">Anime Shop</a>
+    </header>
+    <header class="sticky top-0 z-50 hidden border-b border-slate-800 bg-slate-950/90 backdrop-blur md:block">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+        <a href="index.html" class="text-xl font-bold text-white">Anime Shop</a>
+        <nav class="flex flex-1 flex-wrap items-center gap-3">
+          <a href="index.html" class="text-sm text-slate-200 hover:text-white" data-i18n="home"></a>
+          <a href="catalog.html" class="text-sm text-slate-200 hover:text-white" data-i18n="catalog"></a>
+          <a href="seller.html" class="text-sm text-slate-200 hover:text-white" data-i18n="seller_panel"></a>
+          <a href="about.html" class="text-sm text-slate-200 hover:text-white" data-i18n="about"></a>
+        </nav>
+        <div class="flex items-center gap-4 text-sm">
+          <a href="cart.html" class="relative">
+            🛒
+            <span
+              class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-900"
+              data-cart-count
+              >0</span
+            >
+          </a>
+          <a href="account.html" class="text-slate-200 hover:text-white" data-i18n="account"></a>
+          <select data-lang-switch class="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white">
+            <option value="uz">UZ</option>
+            <option value="ru">RU</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="bottom-safe mx-auto max-w-6xl space-y-8 px-4 pb-32 pt-14 md:pt-20">
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-semibold text-white" data-i18n="catalog_title"></h1>
+          <p class="text-sm text-white/70" data-i18n="catalog_subtitle"></p>
+        </div>
+
+        <div class="mt-2 flex items-center gap-2">
+          <input
+            id="searchInputCatalog"
+            type="search"
+            placeholder="Mahsulot qidirish..."
+            class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:border-slate-500 focus:outline-none"
+          />
+          <button
+            id="searchClearCatalog"
+            type="button"
+            class="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-slate-500"
+          >
+            Tozalash
+          </button>
+        </div>
+
+        <div class="cat-grid hidden">
+          <button class="category-chip cat-pill" data-category="Telefon" aria-pressed="false">
+            <span class="cat-label">O'yinchoq</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Kino" aria-pressed="false">
+            <span class="cat-label">Figurkalar</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Noutbuk" aria-pressed="false">
+            <span class="cat-label">Cosplay</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Uy" aria-pressed="false">
+            <span class="cat-label">Gift box</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Kiyim" aria-pressed="false">
+            <span class="cat-label">Kiyim</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Aksessuar" aria-pressed="false">
+            <span class="cat-label">Aksessuar</span>
+          </button>
+          <button class="category-chip cat-pill" data-category="Kitob" aria-pressed="false">
+            <span class="cat-label">Kitob</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="catalog" class="space-y-6">
+        <div id="error-box" class="hidden rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200"></div>
+
+        <div
+          id="product-list"
+          class="products-grid grid grid-cols-2 items-start gap-4 md:grid-cols-3 lg:grid-cols-4"
+          style="grid-auto-rows: max-content;"
+        ></div>
+
+        <div id="loader" class="flex justify-center">
+          <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-800 border-t-slate-200"></div>
+        </div>
+        <div id="sentinel" class="h-4"></div>
+      </section>
+    </main>
+
+    <!-- ====== BOTTOM NAV ====== -->
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border border-white/10 glass-soft md:hidden">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 text-xs text-white/70">
+        <a href="index.html" class="nav-item">
+          <span>🏠</span>
+          <span data-i18n="home"></span>
+        </a>
+        <a href="catalog.html" class="nav-item active text-white">
+          <span>🛍️</span>
+          <span data-i18n="catalog"></span>
+        </a>
+        <a href="cart.html" class="nav-item relative">
+          <span>🛒</span>
+          <span data-i18n="cart"></span>
+          <span class="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-900" data-cart-count>0</span>
+        </a>
+        <a href="account.html" class="nav-item">
+          <span>👤</span>
+          <span data-i18n="account"></span>
+        </a>
+      </div>
+    </nav>
+
+    <script type="module" src="js/catalog.js"></script>
+  </body>
+</html>

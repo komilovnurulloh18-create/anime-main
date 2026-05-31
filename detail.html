@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Shop — Mahsulot</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Anime Shop" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="css/output.css" />
+    <link rel="stylesheet" href="css/theme.css" />
+  </head>
+  <body class="anime-bg text-white">
+    <!-- ====== NAVBAR ====== -->
+    <header class="fixed top-0 z-50 flex h-14 w-full items-center border-b border-slate-800 bg-slate-950/95 px-4 md:hidden">
+      <a href="index.html" class="text-lg font-semibold text-white">Anime Shop</a>
+    </header>
+    <header class="sticky top-0 z-50 hidden border-b border-slate-800 bg-slate-950/90 backdrop-blur md:block">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <a href="index.html" class="text-xl font-bold text-white">Anime Shop</a>
+        <nav class="flex items-center gap-3 text-sm">
+          <a href="index.html" class="text-slate-200 hover:text-white" data-i18n="home"></a>
+          <a href="catalog.html" class="text-slate-200 hover:text-white" data-i18n="catalog"></a>
+          <a href="seller.html" class="text-slate-200 hover:text-white" data-i18n="seller_panel"></a>
+        </nav>
+        <div class="flex items-center gap-4 text-sm">
+          <a href="cart.html" class="relative">
+            🛒
+            <span class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-900" data-cart-count>0</span>
+          </a>
+          <a href="account.html" class="text-slate-200 hover:text-white" data-i18n="account"></a>
+          <select data-lang-switch class="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white">
+            <option value="uz">UZ</option>
+            <option value="ru">RU</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="bottom-safe-lg mx-auto w-full max-w-6xl space-y-8 px-3 pt-14 md:px-4 md:pt-20">
+      <div id="error-box" class="hidden rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200"></div>
+
+      <section id="detail-wrapper" class="w-full">
+        <p id="dDesc" class="hidden"></p>
+      </section>
+
+      <section id="variant-block" class="hidden section -mt-2">
+        <label for="variantSelect" class="mb-2 block text-sm text-white/70">Variant / Size</label>
+        <select id="variantSelect" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white"></select>
+      </section>
+
+      <section id="comments-section" class="space-y-4">
+        <h2 class="text-lg font-semibold text-white">Izohlar / Comments</h2>
+        <div id="comments-login-note" class="hidden rounded-2xl glass p-6 text-center text-sm text-white/70">
+          <p>Izoh yozish uchun login qiling</p>
+          <a href="account.html" class="mt-3 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+            Accountga o‘tish
+          </a>
+        </div>
+        <form id="comment-form" class="space-y-3 rounded-2xl glass p-4">
+          <textarea id="comment-text" required rows="3" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white" placeholder="Izoh yozing..."></textarea>
+          <div class="flex flex-wrap items-center gap-3 text-sm text-white/70">
+            <label class="flex items-center gap-2">
+              <span>Reyting</span>
+              <select id="comment-rating" class="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white">
+                <option value="">Tanlang</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </label>
+            <button class="ml-auto rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900">Yuborish</button>
+          </div>
+        </form>
+
+        <div id="comments-empty" class="hidden rounded-2xl glass p-4 text-sm text-slate-400">
+          Hozircha izoh yo‘q
+        </div>
+
+        <div id="comments-list" class="space-y-4"></div>
+
+        <button
+          id="comments-toggle"
+          type="button"
+          class="hidden w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+        >
+          Barcha izohlarni ko‘rish
+        </button>
+      </section>
+
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-white" data-i18n="similar"></h2>
+        <div id="similar-list" class="similar-grid"></div>
+      </section>
+
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-white" data-i18n="more"></h2>
+        <div id="more-list" class="similar-grid"></div>
+      </section>
+    </main>
+
+    <div id="detail-action-bar">
+      <div class="detail-bar-inner">
+        <div class="detail-price-box">
+          <p class="detail-price-label">Narx</p>
+          <p id="detail-action-price" class="detail-price-value">0 so'm</p>
+        </div>
+
+        <button id="detail-action-buy" class="detail-buy-btn">Sotib ol</button>
+        <button id="detail-action-cart" class="detail-cart-btn">Savatga</button>
+      </div>
+    </div>
+
+    <!-- ====== BOTTOM NAV ====== -->
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border border-white/10 glass-soft md:hidden">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 text-xs text-white/70">
+        <a href="index.html" class="nav-item">
+          <span>🏠</span>
+          <span data-i18n="home"></span>
+        </a>
+        <a href="catalog.html" class="nav-item">
+          <span>🛍️</span>
+          <span data-i18n="catalog"></span>
+        </a>
+        <a href="cart.html" class="nav-item relative">
+          <span>🛒</span>
+          <span data-i18n="cart"></span>
+          <span class="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-900" data-cart-count>0</span>
+        </a>
+        <a href="account.html" class="nav-item">
+          <span>👤</span>
+          <span data-i18n="account"></span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- COMMENTS MODAL -->
+    <div id="comments-modal" class="comments-modal hidden" aria-hidden="true">
+      <div class="comments-modal__overlay" data-comments-close="1"></div>
+
+      <div class="comments-modal__panel" role="dialog" aria-modal="true" aria-label="Barcha izohlar">
+        <div class="comments-modal__header">
+          <h3 class="text-base font-semibold text-white">Barcha izohlar</h3>
+          <button
+            id="comments-modal-close"
+            type="button"
+            class="comments-modal__close"
+            aria-label="Yopish"
+            data-comments-close="1"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div id="comments-modal-list" class="comments-modal__body space-y-4"></div>
+      </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="img-viewer" class="img-viewer hidden" aria-hidden="true">
+      <div class="img-viewer__overlay" data-close="1"></div>
+
+      <button class="img-viewer__close" type="button" aria-label="Close" data-close="1">✕</button>
+
+      <button class="img-viewer__nav img-viewer__nav--prev" type="button" aria-label="Previous">‹</button>
+
+      <div class="img-viewer__stage" role="dialog" aria-modal="true">
+        <img id="img-viewer-img" alt="Preview" />
+      </div>
+
+      <button class="img-viewer__nav img-viewer__nav--next" type="button" aria-label="Next">›</button>
+    </div>
+
+    <style>
+      .comments-modal.hidden,
+      .img-viewer.hidden {
+        display: none;
+      }
+
+      .comments-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10020;
+      }
+
+      .comments-modal__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.78);
+        backdrop-filter: blur(8px);
+      }
+
+      .comments-modal__panel {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(720px, calc(100vw - 24px));
+        max-height: min(80vh, 760px);
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, rgba(10, 14, 38, 0.98), rgba(7, 10, 26, 0.98));
+        border-radius: 24px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+
+      .comments-modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 16px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .comments-modal__close {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+
+      .comments-modal__body {
+        padding: 16px;
+        overflow-y: auto;
+        max-height: calc(min(80vh, 760px) - 72px);
+      }
+
+      .img-viewer {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      }
+
+      .img-viewer__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 1;
+      }
+
+      .img-viewer__stage {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        z-index: 2;
+      }
+
+      #img-viewer-img {
+        max-width: 92vw;
+        max-height: 82vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .img-viewer__close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 22px;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        backdrop-filter: blur(8px);
+        z-index: 10002;
+      }
+
+      .img-viewer__nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 56px;
+        height: 56px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        color: #fff;
+        font-size: 30px;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        backdrop-filter: blur(6px);
+        z-index: 10001;
+        transition: all 0.2s ease;
+      }
+
+      .img-viewer__nav:hover {
+        background: rgba(0, 0, 0, 0.75);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .img-viewer__nav--prev { left: 18px; }
+      .img-viewer__nav--next { right: 18px; }
+
+      @media (max-width: 640px) {
+        .comments-modal__panel {
+          width: calc(100vw - 16px);
+          max-height: 84vh;
+          border-radius: 20px;
+        }
+
+        .comments-modal__body {
+          padding: 12px;
+          max-height: calc(84vh - 70px);
+        }
+
+        .img-viewer__nav {
+          width: 44px;
+          height: 44px;
+          font-size: 28px;
+        }
+
+        #img-viewer-img {
+          max-width: 96vw;
+          max-height: 86vh;
+        }
+      }
+    </style>
+
+    <script type="module" src="js/detail.js"></script>
+  </body>
+</html>

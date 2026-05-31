@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime shop — Admin</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Anime Shop" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="css/output.css" />
+    <link rel="stylesheet" href="css/theme.css" />
+  </head>
+  <body class="theme-bg text-white">
+    <!-- ====== NAVBAR ====== -->
+    <header class="fixed top-0 z-50 flex h-14 w-full items-center justify-between border-b border-slate-700 bg-[#0f2f52] px-4 md:hidden">
+      <a href="index.html" class="text-lg font-semibold text-white">Anime shop</a>
+      <button
+        id="admin-logout-mobile"
+        class="hidden rounded-lg border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white hover:border-white/40"
+      >
+        Logout
+      </button>
+    </header>
+
+    <header class="hidden border-b border-slate-700 bg-[#0f2f52] md:block">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <a href="index.html" class="text-xl font-bold text-white">Anime shop Admin</a>
+        <nav class="flex items-center gap-3 text-sm">
+          <a href="index.html" class="text-slate-200 hover:text-white">Home</a>
+          <a href="orders.html" class="text-slate-200 hover:text-white">Orders</a>
+          <button
+            id="admin-logout-desktop"
+            class="hidden rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:border-white/40"
+          >
+            Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ====== ADMIN CHECK ====== -->
+    <main class="mx-auto max-w-6xl space-y-10 px-4 pb-24 pt-14 md:pt-16">
+      <!-- LOGIN BOX -->
+      <div
+        id="admin-login-box"
+        class="hidden mx-auto max-w-md rounded-2xl border border-slate-700 bg-slate-800/60 p-6 shadow-lg"
+      >
+        <h2 class="text-xl font-semibold text-white">Admin login</h2>
+        <p class="mt-2 text-sm text-slate-300">
+          Admin panelga kirish uchun email va parolni kiriting.
+        </p>
+
+        <div class="mt-5 space-y-4">
+          <label class="block space-y-2 text-sm text-white/70">
+            <span>Email</span>
+            <input
+              id="admin-email"
+              type="email"
+              placeholder="Admin email"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-white outline-none"
+            />
+          </label>
+
+          <label class="block space-y-2 text-sm text-white/70">
+            <span>Parol</span>
+            <input
+              id="admin-password"
+              type="password"
+              placeholder="Parol"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-white outline-none"
+            />
+          </label>
+
+          <button
+            id="admin-login-btn"
+            class="w-full rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+          >
+            Kirish
+          </button>
+
+          <p id="admin-login-error" class="text-sm text-rose-300"></p>
+        </div>
+      </div>
+
+      <div id="access-denied" class="hidden rounded-2xl border border-rose-400/40 bg-rose-900/30 p-6 text-center text-sm text-rose-100">
+        Kechirasiz, bu bo‘lim faqat admin email bilan kirgan foydalanuvchilar uchun.
+      </div>
+
+      <section id="admin-panel" class="hidden space-y-10">
+        <section class="space-y-4">
+          <h2 class="text-xl font-semibold text-white">Admin profil</h2>
+          <div class="rounded-2xl glass p-6 shadow-sm">
+            <div class="grid gap-4 text-sm text-white/80 md:grid-cols-2">
+              <div>
+                <p class="text-xs uppercase tracking-wide text-white/50">Email</p>
+                <p id="admin-email-view" class="mt-1 text-sm font-semibold text-white">nurullohkomilov163@gmail.com</p>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-wide text-white/50">Ism</p>
+                <p id="admin-name-view" class="mt-1 text-sm text-white/80">—</p>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-wide text-white/50">Telefon</p>
+                <p class="mt-1 text-sm text-white/80">—</p>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-wide text-white/50">Manzil</p>
+                <p class="mt-1 text-sm text-white/80">—</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="products" class="space-y-4">
+          <h2 class="text-xl font-semibold text-white">Yangi mahsulot qo‘shish</h2>
+          <div class="rounded-2xl glass p-6 shadow-sm">
+            <form id="admin-product-form" class="space-y-4">
+              <div class="grid gap-4 md:grid-cols-2">
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Mahsulot nomi</span>
+                  <input id="product-title" required class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Kategoriya</span>
+                  <select id="product-category" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white">
+                    <option value="Telefon">Telefon</option>
+                    <option value="Kino">Kino</option>
+                    <option value="Noutbuk">Noutbuk</option>
+                    <option value="Uy">Uy</option>
+                    <option value="Kiyim">Kiyim</option>
+                    <option value="Aksessuar">Aksessuar</option>
+                    <option value="Kitob">Kitob</option>
+                  </select>
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Narx</span>
+                  <input id="product-price" type="number" min="0" required class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Ombordagi soni</span>
+                  <input id="product-stock" type="number" min="0" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Eski narx (ixtiyoriy)</span>
+                  <input id="product-old-price" type="number" min="0" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Chegirma foizi (ixtiyoriy)</span>
+                  <input id="product-discount" type="number" min="0" max="100" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+                <label class="space-y-2 text-sm text-white/70">
+                  <span>Reyting (ixtiyoriy)</span>
+                  <input id="product-rating" type="number" min="0" max="5" step="0.1" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white" />
+                </label>
+              </div>
+              <div class="rounded-2xl border border-slate-700 bg-slate-800/40 p-4">
+                <p class="text-sm font-semibold text-white">Variantlar / O'lchamlar</p>
+                <p class="mt-1 text-xs text-white/60">Agar mahsulot bir nechta variantga ega bo‘lsa, shu yerda qo‘shing.</p>
+                <div class="mt-3 grid gap-3 sm:grid-cols-[1fr_180px_auto]">
+                  <input
+                    id="variant-name"
+                    type="text"
+                    placeholder="Masalan: 250 ml"
+                    class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white"
+                  />
+                  <input
+                    id="variant-price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Narx"
+                    class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white"
+                  />
+                  <button
+                    id="add-variant-btn"
+                    type="button"
+                    class="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:border-white/40"
+                  >
+                    ➕ Add variant
+                  </button>
+                </div>
+                <div id="variant-list" class="mt-3 space-y-2"></div>
+              </div>
+              <label class="space-y-2 text-sm text-white/70">
+                <span>Tavsif</span>
+                <textarea id="pDesc" rows="4" class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white"></textarea>
+              </label>
+              <label class="space-y-2 text-sm text-white/70">
+                <span>Rasmlar (maksimum 10 ta)</span>
+                <input
+                  id="pImages"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm text-white"
+                />
+              </label>
+              <p id="image-limit-error" class="hidden text-xs text-rose-200">Maksimum 10 ta rasm yuklash mumkin.</p>
+              <div id="image-preview" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+              <button id="btnSave" class="rounded-xl bg-blue-500 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-600">Saqlash</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="space-y-4">
+          <h2 class="text-xl font-semibold text-white">Katalog kategoriyalari</h2>
+          <div class="cat-grid">
+            <div class="cat-pill">
+              <span class="cat-ico">📱</span>
+              <span class="cat-label">Telefon</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">🎬</span>
+              <span class="cat-label">Kino</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">💻</span>
+              <span class="cat-label">Noutbuk</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">🏠</span>
+              <span class="cat-label">Uy</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">👕</span>
+              <span class="cat-label">Kiyim</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">🧸</span>
+              <span class="cat-label">Aksessuar</span>
+            </div>
+            <div class="cat-pill">
+              <span class="cat-ico">📚</span>
+              <span class="cat-label">Kitob</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-4">
+          <h2 class="text-xl font-semibold text-white">Mahsulotlar ro‘yxati</h2>
+          <div id="admin-products-empty" class="hidden rounded-2xl border border-slate-700 bg-slate-800/60 p-4 text-sm text-slate-200">
+            Hali mahsulot qo‘shilmagan
+          </div>
+          <div id="adminProducts" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+        </section>
+
+        <section id="comments" class="space-y-4">
+          <h2 class="text-xl font-semibold text-white">Kommentariyalar</h2>
+          <div id="comments-empty" class="hidden rounded-2xl glass p-6 text-sm text-slate-200">
+            Hozircha izoh yo‘q
+          </div>
+          <div id="admin-comments" class="space-y-4"></div>
+        </section>
+
+        <section id="payments" class="space-y-4">
+          <h1 class="text-2xl font-semibold text-white">Tekshiruvdagi buyurtmalar</h1>
+          <div id="pending-empty" class="hidden rounded-2xl glass p-6 text-sm text-slate-200">
+            Tekshiruvda buyurtma yo'q.
+          </div>
+          <div id="pending-orders" class="grid gap-4"></div>
+        </section>
+      </section>
+    </main>
+
+    <!-- ====== RECEIPT VERIFICATION ====== -->
+    <div id="receipt-modal" class="fixed inset-0 hidden items-center justify-center bg-slate-900/80 p-4">
+      <div class="max-w-3xl rounded-2xl glass p-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-white">Receipt preview</h3>
+          <button id="receipt-close" class="text-white/70">✕</button>
+        </div>
+        <img id="receipt-image" src="" alt="receipt" class="mt-4 max-h-[70vh] w-full rounded-xl object-contain" />
+      </div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+  </body>
+</html>
+

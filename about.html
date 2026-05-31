@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biz haqimizda | Anime Shop Uzbekistan</title>
+    <meta
+      name="description"
+      content="Anime Shop Uzbekistan — anime figurkalar, merch, aksessuarlar va sovg‘alar do‘koni. Biz haqimizda, mahsulotlarimiz va mijozlar uchun qulay xizmatlar bilan tanishing."
+    />
+    
+    <link rel="stylesheet" href="css/output.css" />
+    <link rel="stylesheet" href="css/theme.css" />
+    
+  </head>
+  <body class="bg-slate-950 text-white">
+    <!-- ====== NAVBAR ====== -->
+    <header class="fixed top-0 z-50 flex h-14 w-full items-center border-b border-slate-800 bg-slate-950/95 px-4 md:hidden">
+      <a href="index.html" class="text-lg font-semibold text-white">Anime shop</a>
+    </header>
+    <header class="sticky top-0 z-50 hidden border-b border-slate-800 bg-slate-950/90 backdrop-blur md:block">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <a href="index.html" class="text-xl font-bold text-white">Anime shop</a>
+        <nav class="flex items-center gap-3 text-sm">
+          <a href="index.html" class="text-slate-200 hover:text-white" data-i18n="home"></a>
+          <a href="catalog.html" class="text-slate-200 hover:text-white" data-i18n="catalog"></a>
+        </nav>
+        <div class="flex items-center gap-4 text-sm">
+          <a href="cart.html" class="relative">
+            🛒
+            <span class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-900" data-cart-count>0</span>
+          </a>
+          <a href="account.html" class="text-slate-200 hover:text-white" data-i18n="account"></a>
+          <select data-lang-switch class="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white">
+            <option value="uz">UZ</option>
+            <option value="ru">RU</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-4 pb-24 pt-14 md:pt-20">
+      <div class="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-sm">
+        <h1 class="text-3xl font-bold text-white" data-i18n="about_title"></h1>
+        <p class="mt-4 text-slate-300" data-i18n="about_text"></p>
+        <div class="mt-6 grid gap-4 text-sm text-slate-300 sm:grid-cols-3">
+          <div class="rounded-2xl bg-slate-950 p-4" data-i18n="about_feature_ui"></div>
+          <div class="rounded-2xl bg-slate-950 p-4" data-i18n="about_feature_cart"></div>
+          <div class="rounded-2xl bg-slate-950 p-4" data-i18n="about_feature_seller"></div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-800 bg-slate-950/95 backdrop-blur md:hidden">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 text-xs text-slate-300">
+        <a href="index.html" class="flex flex-col items-center gap-1">
+          <span>🏠</span>
+          <span data-i18n="home"></span>
+        </a>
+        <a href="catalog.html" class="flex flex-col items-center gap-1">
+          <span>🛍️</span>
+          <span data-i18n="catalog"></span>
+        </a>
+        <a href="cart.html" class="relative flex flex-col items-center gap-1">
+          <span>🛒</span>
+          <span data-i18n="cart"></span>
+          <span class="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-900" data-cart-count>0</span>
+        </a>
+        <a href="account.html" class="flex flex-col items-center gap-1">
+          <span>👤</span>
+          <span data-i18n="account"></span>
+        </a>
+      </div>
+    </nav>
+
+    <script type="module" src="js/about.js"></script>
+  </body>
+</html>
