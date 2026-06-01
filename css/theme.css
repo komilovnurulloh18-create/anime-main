@@ -141,15 +141,10 @@ footer {
 }
 
 .glass,
-.glass-soft,
-.section {
-  border: 1px solid var(--stroke-0);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018)),
-    linear-gradient(180deg, rgba(27, 20, 64, 0.52), rgba(10, 12, 28, 0.78));
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.glass-soft {
+  background: #0b0f2a !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
 .glass {
@@ -359,21 +354,21 @@ a.border {
 }
 
 .product-card {
-  position: relative;
-  display: block;
-  padding: 0.85rem;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
-    linear-gradient(180deg, rgba(26, 16, 56, 0.75), rgba(8, 10, 25, 0.94));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  background: #11142f;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 10px;
+  transition: 0.2s;
 }
 
 .product-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(192, 132, 252, 0.28);
+  transform: translateY(-3px);
+}
+
+
+.product-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 30px rgba(168,85,247,.3);
 }
 
 .product-media,
@@ -534,30 +529,35 @@ a.border {
 /* action bar */
 #detail-action-bar {
   position: fixed;
-  left: 8px;
-  right: 8px;
-  bottom: calc(var(--nav-height) + 14px);
-  z-index: 70;
-  max-width: 720px;
+  left: 0;
+  right: 0;
+  bottom: 70px; /* NAVBAR USTIGA KO'TARADI */
+
+  z-index: 60;
+  padding: 10px 12px;
+}
+
+.detail-bar-inner {
+  display: flex;
+  gap: 10px;
+
+  max-width: 900px;
   margin: 0 auto;
-  pointer-events: none;
+
+  background: #0b0f2a;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 16px;
+  padding: 10px;
+
+  box-shadow: none; /* shadow o'chdi */
 }
 
 #detail-action-bar .detail-bar-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-  align-items: center;
-  padding: 6px;
-  border-radius: 14px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)),
-    linear-gradient(180deg, rgba(27, 20, 64, 0.88), rgba(8, 10, 25, 0.96));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  pointer-events: auto;
+  background: #11142f;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .detail-price-box {
@@ -893,24 +893,24 @@ a.border {
 
   .bottom-nav,
   nav.fixed.bottom-0.left-0.right-0.z-50 {
-    left: 8px !important;
-    right: 8px !important;
-    bottom: 8px !important;
-    border-radius: 20px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
   }
 
   .bottom-nav .mx-auto,
   nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
-    min-height: 68px !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    min-height: 64px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 
   .bottom-nav .nav-item,
   nav.fixed.bottom-0.left-0.right-0.z-50 a {
-    min-width: 48px !important;
-    gap: 2px !important;
-    font-size: 11px !important;
+    min-width: 46px !important;
+    font-size: 9px !important;
+    gap: 0.18rem !important;
   }
 }
 
@@ -1006,51 +1006,135 @@ a.border {
   border-top-color: #c084fc !important;
 }
 
+/* ===== BOTTOM NAV — iOS PRO STYLE ===== */
 .bottom-nav,
 nav.fixed.bottom-0.left-0.right-0.z-50 {
-  left: 12px !important;
-  right: 12px !important;
-  bottom: 10px !important;
-  border-radius: 26px !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
-    rgba(9, 10, 24, 0.88) !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  border-radius: 22px 22px 0 0 !important;
+
+  background: rgba(12, 12, 20, 0.96) !important;
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.08) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.08) !important;
+
+  border: none !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 -8px 32px rgba(0, 0, 0, 0.45) !important;
+
   padding-bottom: env(safe-area-inset-bottom);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.bottom-nav .mx-auto,
+nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
+  min-height: var(--nav-height) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 .bottom-nav .nav-item,
 nav.fixed.bottom-0.left-0.right-0.z-50 a {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.28rem;
-  color: var(--text-soft);
-  min-width: 58px;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.24rem !important;
+  color: rgba(255, 255, 255, 0.38) !important;
+  min-width: 58px !important;
+  padding: 6px 10px !important;
+  border-radius: 20px !important;
+  transition: color 0.2s ease !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  text-decoration: none !important;
 }
 
+.bottom-nav .nav-item:hover,
+nav.fixed.bottom-0.left-0.right-0.z-50 a:hover {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* ACTIVE ITEM — ko'k pill, xuddi iOS kabi */
 .bottom-nav .nav-item.active,
 nav.fixed.bottom-0.left-0.right-0.z-50 a.text-white {
   color: #fff !important;
 }
 
-.bottom-nav .nav-item.active::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent-2), var(--accent-4));
+/* Icon wrapping element uchun ko'k pill */
+.bottom-nav .nav-item.active .nav-icon-wrap,
+nav.fixed.bottom-0.left-0.right-0.z-50 a.text-white .nav-icon-wrap {
+  background: linear-gradient(150deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-radius: 16px !important;
+  padding: 7px 20px !important;
+  box-shadow:
+    0 4px 16px rgba(37, 99, 235, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.24) inset !important;
+  transform: scale(1.04) !important;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-.bottom-nav .mx-auto,
-nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
-  min-height: var(--nav-height);
+/* Agar nav-icon-wrap yo'q bo'lsa — to'g'ridan svg/icon ga pill */
+.bottom-nav .nav-item.active > svg:first-child,
+.bottom-nav .nav-item.active > i:first-child,
+nav.fixed.bottom-0.left-0.right-0.z-50 a.text-white > svg:first-child,
+nav.fixed.bottom-0.left-0.right-0.z-50 a.text-white > i:first-child {
+  background: linear-gradient(150deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-radius: 14px !important;
+  padding: 7px 18px !important;
+  box-shadow:
+    0 4px 16px rgba(37, 99, 235, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.24) inset !important;
+}
+
+/* Eski dot indikatorni o'chiramiz */
+.bottom-nav .nav-item.active::after {
+  display: none !important;
+}
+
+/* Cart badge */
+.bottom-nav .nav-item .badge,
+nav.fixed.bottom-0.left-0.right-0.z-50 a .badge,
+.bottom-nav .nav-item [data-count],
+nav.fixed.bottom-0.left-0.right-0.z-50 a [data-count] {
+  position: absolute !important;
+  top: 2px !important;
+  right: 4px !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  border-radius: 999px !important;
+  background: #ef4444 !important;
+  color: #fff !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid rgba(12, 12, 20, 0.82) !important;
+  padding: 0 3px !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Icon o'lchami */
+.bottom-nav .nav-item svg,
+nav.fixed.bottom-0.left-0.right-0.z-50 a svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* Label */
+.bottom-nav .nav-item span:last-child,
+nav.fixed.bottom-0.left-0.right-0.z-50 a span:last-child {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
 }
 
 .copy-btn,
@@ -1132,6 +1216,7 @@ nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
   }
 
   main {
+    padding-bottom: 160px;
     padding-left: 14px !important;
     padding-right: 14px !important;
   }
@@ -1140,8 +1225,6 @@ nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
   .glass-soft,
   .section,
   header,
-  .bottom-nav,
-  nav.fixed.bottom-0.left-0.right-0.z-50,
   #detail-action-bar .detail-bar-inner {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -1155,8 +1238,8 @@ nav.fixed.bottom-0.left-0.right-0.z-50 .mx-auto {
 @media (min-width: 768px) {
   .bottom-nav,
   nav.fixed.bottom-0.left-0.right-0.z-50 {
-    left: 20px !important;
-    right: 20px !important;
+    left: 0 !important;
+    right: 0 !important;
   }
 }
 
@@ -1380,9 +1463,7 @@ body.theme-bg:has(#summary-box) .bottom-nav,
 body.theme-bg:has(#cart-list) nav.fixed.bottom-0.left-0.right-0.z-50,
 body.theme-bg:has(#checkout-summary) nav.fixed.bottom-0.left-0.right-0.z-50,
 body.theme-bg:has(#summary-box) nav.fixed.bottom-0.left-0.right-0.z-50 {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
-    rgba(8, 10, 25, 0.92) !important;
+  background: rgba(8, 10, 25, 0.88) !important;
 }
 
 /* ===== HOME PROMO CLEAN FINAL ===== */
