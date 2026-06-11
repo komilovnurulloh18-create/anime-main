@@ -21,10 +21,15 @@ const offlineNotice = document.querySelector("#orders-offline");
 const modal = document.querySelector("#order-modal");
 const modalContent = document.querySelector("#modal-content");
 const modalClose = document.querySelector("#modal-close");
+const ordBadge = document.querySelector("#ord-badge");
+const ordSummary = document.querySelector("#ord-summary");
+const sumTotal = document.querySelector("#sum-total");
+const sumApproved = document.querySelector("#sum-approved");
+const sumPending = document.querySelector("#sum-pending");
 
 // ====== HELPERS ======
-const CACHE_KEY = "orders_cache_v2"; // eski cache bilan urishmasin
-const LS_FALLBACK_KEY = "orders"; // sizda bor
+const CACHE_KEY = "orders_cache_v2";
+const LS_FALLBACK_KEY = "orders";
 
 const safeJson = (key, fallback) => {
   try {
@@ -36,10 +41,9 @@ const safeJson = (key, fallback) => {
   }
 };
 
-// createdAt har xil formatda kelishi mumkin: Timestamp | ISO | number | null
 const toDateObj = (value) => {
   if (!value) return null;
-  if (value?.toDate) return value.toDate(); // Firestore Timestamp
+  if (value?.toDate) return value.toDate();
   if (typeof value === "string") {
     const d = new Date(value);
     return isNaN(d.getTime()) ? null : d;
@@ -61,12 +65,15 @@ const toDisplayDateTime = (value) => {
 const toDisplayDate = (value) => {
   const d = toDateObj(value);
   if (!d) return "—";
-  return d.toLocaleDateString(getLang() === "ru" ? "ru-RU" : "uz-UZ");
+  return d.toLocaleDateString(getLang() === "ru" ? "ru-RU" : "uz-UZ", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 };
 
 const normalizeForCache = (order) => ({
   ...order,
-  // cache ichida Timestamp saqlamaymiz, string qilamiz
   createdAt: toDateObj(order.createdAt)?.toISOString?.() || order.createdAt || null,
   updatedAt: toDateObj(order.updatedAt)?.toISOString?.() || order.updatedAt || null,
 });
@@ -78,26 +85,24 @@ const formatStatus = (status) => {
   return statusLabel(status).text || status || "—";
 };
 
-const renderSkeleton = (count = 6) => {
+// ── Status → premium badge styling map ──
+const STATUS_STYLE = {
+  pending: { ico: "⏳", cls: "approved-pending", color: "rgba(245,158,11,.12)", border: "rgba(245,158,11,.28)", text: "#fcd34d", strip: "linear-gradient(90deg,#f59e0b,#fcd34d)" },
+  pending_verification: { ico: "⏳", cls: "approved-pending", color: "rgba(245,158,11,.12)", border: "rgba(245,158,11,.28)", text: "#fcd34d", strip: "linear-gradient(90deg,#f59e0b,#fcd34d)" },
+  approved: { ico: "✅", cls: "approved-ok", color: "rgba(34,197,94,.12)", border: "rgba(34,197,94,.28)", text: "#4ade80", strip: "linear-gradient(90deg,#22c55e,#4ade80)" },
+  accepted: { ico: "✅", cls: "approved-ok", color: "rgba(34,197,94,.12)", border: "rgba(34,197,94,.28)", text: "#4ade80", strip: "linear-gradient(90deg,#22c55e,#4ade80)" },
+  rejected: { ico: "❌", cls: "approved-bad", color: "rgba(239,68,68,.12)", border: "rgba(239,68,68,.28)", text: "#f87171", strip: "linear-gradient(90deg,#ef4444,#f87171)" },
+};
+const getStatusStyle = (status) =>
+  STATUS_STYLE[status] || { ico: "📋", cls: "approved-default", color: "rgba(168,85,247,.12)", border: "rgba(168,85,247,.28)", text: "#c084fc", strip: "linear-gradient(90deg,#7c3aed,#c084fc)" };
+
+const renderSkeleton = (count = 4) => {
   ordersList.innerHTML = ordersSkeletonListHTML(count);
 };
 
-const renderReceiptThumb = (order, size = "h-8 w-8") => {
-  const src = order.receiptUrl || order.receipt?.url || order.receiptBase64 || "";
-  if (!src) return "";
-  return `
-    <a href="${src}" target="_blank" rel="noreferrer"
-       class="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-2 py-1 text-xs text-white/85">
-      <img src="${src}" alt="Chek" class="${size} rounded object-cover" />
-      <span>${t("details") || "Receipt"}</span>
-    </a>
-  `;
-};
-
-// product title chiqishi uchun item ichida title bo‘lsa ishlatamiz, bo‘lmasa `Product #id`
+// product title
 const getItemTitle = (item) => {
   if (!item) return "—";
-
   const base =
     item.title ||
     item.name ||
@@ -114,9 +119,35 @@ const getItemTitle = (item) => {
 
   return variant ? `${base} (${variant})` : base;
 };
+
+const getItemImage = (item) => {
+  return item?.image || item?.img || item?.photo || item?.thumbnail || "";
+};
+
+// ====== UPDATE SUMMARY ======
+const updateSummary = (data) => {
+  if (ordBadge) ordBadge.textContent = data.length;
+
+  if (!data.length) {
+    if (ordSummary) ordSummary.style.display = "none";
+    return;
+  }
+
+  if (ordSummary) ordSummary.style.display = "grid";
+  if (sumTotal) sumTotal.textContent = data.length;
+
+  const approvedCount = data.filter((o) => o.status === "approved" || o.status === "accepted").length;
+  const pendingCount = data.filter((o) => o.status === "pending" || o.status === "pending_verification").length;
+
+  if (sumApproved) sumApproved.textContent = approvedCount;
+  if (sumPending) sumPending.textContent = pendingCount;
+};
+
 // ====== RENDER ======
 const renderOrders = () => {
   const data = window.__orders || [];
+
+  updateSummary(data);
 
   if (!data.length) {
     emptyState.classList.remove("hidden");
@@ -130,44 +161,70 @@ const renderOrders = () => {
     .map((order) => {
       const shownId = order.id || order.docId || "—";
       const total = Number(order.total || 0);
+      const items = Array.isArray(order.items) ? order.items : [];
+      const ss = getStatusStyle(order.status);
+
+      // Item thumbnails (max 3 + counter)
+      const thumbsHtml = items
+        .slice(0, 3)
+        .map((item) => {
+          const img = getItemImage(item);
+          return `<div class="ord-thumb">${
+            img
+              ? `<img src="${img}" alt="" onerror="this.parentElement.innerHTML='🛍️'">`
+              : "🛍️"
+          }</div>`;
+        })
+        .join("");
+      const extraCount =
+        items.length > 3 ? `<div class="ord-thumb ord-thumb-more">+${items.length - 3}</div>` : "";
+
+      const rejectReasonHtml =
+        order.status === "rejected" && order.rejectReason
+          ? `<div class="ord-reject-reason">⚠️ Sabab: ${order.rejectReason}</div>`
+          : "";
 
       return `
-        <div class="rounded-2xl glass p-4 shadow-sm">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p class="text-xs text-slate-400">${t("order_id") || "ID"}</p>
-              <p class="font-semibold text-white">${shownId}</p>
-              <p class="mt-1 text-xs text-slate-400">docId: ${order.docId || "—"}</p>
+        <div class="ord-card">
+          <div class="ord-strip" style="background:${ss.strip}"></div>
+          <div class="ord-card-body">
+
+            <div class="ord-top-row">
+              <div>
+                <div class="ord-id-lbl">${t("order_id") || "Buyurtma ID"}</div>
+                <div class="ord-id-val">${shownId}</div>
+              </div>
+              <div class="ord-date-wrap">
+                <div class="ord-date-lbl">${t("order_date") || "Sana"}</div>
+                <div class="ord-date-val">${toDisplayDate(order.createdAt || order.date)}</div>
+              </div>
             </div>
 
-            <div>
-              <p class="text-xs text-slate-400">${t("order_date") || "Sana"}</p>
-              <p class="text-sm text-slate-300">${toDisplayDate(order.createdAt || order.date)}</p>
-            </div>
-
-            <div>
-              <p class="text-xs text-slate-400">${t("order_status") || "Status"}</p>
-              <span class="${statusLabel(order.status).cls}">
-                ${formatStatus(order.status)}
+            <div class="ord-mid-row">
+              <span class="ord-status" style="background:${ss.color};border:1px solid ${ss.border};color:${ss.text}">
+                ${ss.ico} ${formatStatus(order.status)}
               </span>
-              ${
-                order.status === "rejected" && order.rejectReason
-                  ? `<p class="mt-2 text-xs text-rose-200">Sabab: ${order.rejectReason}</p>`
-                  : ""
-              }
+              <div style="text-align:right;">
+                <div class="ord-price-lbl">${t("total") || "Jami"}</div>
+                <div class="ord-price-val">${formatPrice(total)} so'm</div>
+              </div>
             </div>
 
-            <div>
-              <p class="text-xs text-slate-400">${t("total") || "Jami"}</p>
-              <p class="font-semibold text-white">${formatPrice(total)} so'm</p>
+            ${rejectReasonHtml}
+
+            ${
+              items.length
+                ? `<div class="ord-thumbs-row">${thumbsHtml}${extraCount}<span class="ord-items-count">${items.length} ta mahsulot</span></div>`
+                : ""
+            }
+
+            <div class="ord-footer">
+              <button class="order-detail-btn ord-detail-btn" data-docid="${order.docId || ""}">
+                Batafsil
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
             </div>
 
-            ${renderReceiptThumb(order)}
-
-            <button class="order-detail-btn neon-btn rounded-lg px-3 py-1 text-xs font-semibold"
-                    data-docid="${order.docId || ""}">
-              ${t("details") || "Details"}
-            </button>
           </div>
         </div>
       `;
@@ -181,48 +238,135 @@ const openModal = (docId) => {
   if (!order) return;
 
   const created = order.createdAt || order.date;
+  const items = Array.isArray(order.items) ? order.items : [];
+  const ss = getStatusStyle(order.status);
+  const total = Number(order.total || 0);
+
+  // Receipt
+  const receiptSrc = order.receiptUrl || order.receipt?.url || order.receiptBase64 || "";
+  const receiptHtml = receiptSrc
+    ? `
+      <div class="m-sec">
+        <div class="m-sec-hd">🧾 To'lov cheki</div>
+        <a href="${receiptSrc}" target="_blank" rel="noreferrer" class="m-receipt">
+          <img src="${receiptSrc}" alt="Chek" />
+          <span>Chekni ko'rish</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+      </div>`
+    : "";
+
+  // Reject reason
+  const rejectHtml =
+    order.status === "rejected" && order.rejectReason
+      ? `
+      <div class="m-sec">
+        <div class="m-card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.18);">
+          <div style="font-size:12.5px;color:#fca5a5;font-weight:700;">⚠️ Rad etilish sababi</div>
+          <div style="font-size:13px;color:rgba(247,244,255,.75);margin-top:4px;line-height:1.5;">${order.rejectReason}</div>
+        </div>
+      </div>`
+      : "";
+
+  // Products
+  const productsHtml = items.length
+    ? items
+        .map((item) => {
+          const img = getItemImage(item);
+          const qty = Number(item.qty || 1);
+          const price = Number(item.price || item.totalPrice || 0);
+          return `
+          <div class="m-product">
+            <div class="m-prod-img">${
+              img ? `<img src="${img}" alt="" onerror="this.parentElement.innerHTML='🛍️'">` : "🛍️"
+            }</div>
+            <div style="flex:1;min-width:0;">
+              <div class="m-prod-name">${getItemTitle(item)}</div>
+              <div class="m-prod-meta">${qty} dona${price ? ` × ${formatPrice(price)} so'm` : ""}</div>
+            </div>
+            ${price ? `<div class="m-prod-price">${formatPrice(price * qty)} so'm</div>` : `<div class="m-prod-qty">×${qty}</div>`}
+          </div>`;
+        })
+        .join("")
+    : `<div style="color:rgba(247,244,255,.4);font-size:13px;padding:8px 0;">Mahsulot ma'lumoti yo'q</div>`;
+
+  // Delivery / contact info (agar order ichida bo'lsa)
+  const name = order.name || order.customerName || order.fullName || "";
+  const phone = order.phone || order.userPhone || "";
+  const address = order.address || order.deliveryAddress || "";
+
+  const deliveryHtml =
+    name || phone || address
+      ? `
+      <div class="m-sec">
+        <div class="m-sec-hd">🚚 Yetkazib berish</div>
+        <div class="m-card">
+          ${name ? `<div class="m-row"><span class="m-row-lbl">Ism</span><span class="m-row-val">${name}</span></div>` : ""}
+          ${phone ? `<div class="m-row"><span class="m-row-lbl">Telefon</span><span class="m-row-val">${phone}</span></div>` : ""}
+          ${address ? `<div class="m-row"><span class="m-row-lbl">Manzil</span><span class="m-row-val">${address}</span></div>` : ""}
+        </div>
+      </div>`
+      : "";
 
   modalContent.innerHTML = `
-    <div class="space-y-2">
-      <h3 class="text-lg font-semibold text-white">${order.id || order.docId}</h3>
-      <p class="text-sm text-slate-400">${toDisplayDateTime(created)}</p>
-
-      <div class="mt-2">
-        <div class="text-sm text-slate-300">
-          <b>${t("order_status") || "Status"}:</b> ${formatStatus(order.status)}
-        </div>
-        <div class="text-sm text-slate-300">
-          <b>${t("total") || "Jami"}:</b> ${formatPrice(Number(order.total || 0))} so'm
-        </div>
+    <!-- Status banner -->
+    <div class="m-status-banner" style="background:${ss.color};border:1px solid ${ss.border};">
+      <span style="font-size:24px;">${ss.ico}</span>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#fff;">${formatStatus(order.status)}</div>
+        <div style="font-size:11px;color:rgba(247,244,255,.42);margin-top:1px;">Buyurtma holati</div>
       </div>
+    </div>
 
-      <div class="mt-3">
-        ${renderReceiptThumb(order, "h-10 w-10")}
-      </div>
-
-      <div class="mt-4">
-        <p class="text-xs text-slate-400 mb-2">Mahsulotlar</p>
-        <div class="space-y-2">
-          ${(order.items || [])
-            .map((item) => {
-              const title = getItemTitle(item);
-              const qty = Number(item.qty || 1);
-              return `
-                <div class="flex items-center justify-between text-sm text-slate-300 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-                  <span class="truncate pr-2">
-                     ${title}
-                  </span>
-                  <span class="shrink-0">${qty}x</span>
-                </div>
-              `;
-            })
-            .join("") || `<p class="text-sm text-white/70">—</p>`}
+    <!-- Order info -->
+    <div class="m-sec">
+      <div class="m-sec-hd">📋 Buyurtma ma'lumoti</div>
+      <div class="m-card">
+        <div class="m-row">
+          <span class="m-row-lbl">ID</span>
+          <span class="m-row-val" style="font-size:11px;color:#a5b4fc;">${order.id || order.docId || "—"}</span>
+        </div>
+        <div class="m-row">
+          <span class="m-row-lbl">Sana</span>
+          <span class="m-row-val">${toDisplayDateTime(created)}</span>
         </div>
       </div>
     </div>
+
+    ${rejectHtml}
+
+    ${deliveryHtml}
+
+    <!-- Products -->
+    <div class="m-sec">
+      <div class="m-sec-hd">🛍️ Mahsulotlar${items.length ? ` (${items.length} ta)` : ""}</div>
+      <div class="m-card">${productsHtml}</div>
+    </div>
+
+    ${receiptHtml}
+
+    <!-- Total -->
+    <div class="m-total">
+      <span class="m-total-lbl">💰 Jami summa</span>
+      <span class="m-total-val">${formatPrice(total)} so'm</span>
+    </div>
+
+    <!-- Admin contact -->
+    <a href="https://t.me/animeshopuz_admin" target="_blank" class="m-admin-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#29b6f6"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.447l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.888.112z"/></svg>
+      Admin bilan bog'lanish
+    </a>
   `;
 
   modal.classList.remove("hidden");
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+};
+
+const closeModal = () => {
+  modal.classList.remove("open");
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
 };
 
 ordersList?.addEventListener("click", (event) => {
@@ -232,23 +376,21 @@ ordersList?.addEventListener("click", (event) => {
   if (docId) openModal(docId);
 });
 
-modalClose?.addEventListener("click", () => modal.classList.add("hidden"));
+modalClose?.addEventListener("click", closeModal);
 modal?.addEventListener("click", (event) => {
-  if (event.target === modal) modal.classList.add("hidden");
+  if (event.target === modal) closeModal();
 });
 
 // ====== FIRESTORE LOAD ======
 const mapDocs = (snap) =>
   snap.docs.map((d) => {
     const data = d.data() || {};
-    // docId alohida; id esa payloaddagi ord_ bo‘lsa shuni qoldiramiz
     return { docId: d.id, ...data, id: data.id || d.id };
   });
 
 const fetchOrdersFromFirestore = async (currentUser) => {
   if (!currentUser) return [];
 
-  // 1) userId bo‘yicha
   if (currentUser.id) {
     try {
       const q1 = query(
@@ -261,7 +403,6 @@ const fetchOrdersFromFirestore = async (currentUser) => {
       const items = mapDocs(s1);
       if (items.length) return items;
     } catch (e) {
-      // createdAt yo‘q bo‘lsa orderBy yiqilishi mumkin, fallback
       console.warn("userId query failed, fallback:", e);
       const q1 = query(collection(db, "orders"), where("userId", "==", currentUser.id), limit(50));
       const s1 = await getDocs(q1);
@@ -273,7 +414,6 @@ const fetchOrdersFromFirestore = async (currentUser) => {
     }
   }
 
-  // 2) phone bo‘yicha
   if (currentUser.phone) {
     try {
       const q2 = query(
@@ -303,7 +443,6 @@ const fetchOrdersFromFirestore = async (currentUser) => {
 const init = async () => {
   renderSkeleton();
 
-  // cache ko‘rsatib turamiz
   const cached = safeJson(CACHE_KEY, null);
   if (cached?.items?.length) {
     window.__orders = cached.items;
@@ -314,16 +453,18 @@ const init = async () => {
   if (!currentUser) {
     emptyState.classList.remove("hidden");
     ordersList.innerHTML = "";
+    if (ordBadge) ordBadge.textContent = "0";
+    if (ordSummary) ordSummary.style.display = "none";
     return;
   }
 
-  if (!navigator.onLine && offlineNotice) offlineNotice.classList.remove("hidden");
+  // "Internet yo'q" bandlovchi notice — endi ko'rsatilmaydi (dizayn talabi)
+  // if (!navigator.onLine && offlineNotice) offlineNotice.classList.remove("hidden");
 
   try {
     const firebaseOrders = await fetchOrdersFromFirestore(currentUser);
     window.__orders = firebaseOrders;
 
-    // cache saqlaymiz
     localStorage.setItem(
       CACHE_KEY,
       JSON.stringify({ ts: Date.now(), items: firebaseOrders.map(normalizeForCache) })
@@ -333,7 +474,6 @@ const init = async () => {
   } catch (error) {
     console.error("Firestore orders load failed:", error);
 
-    // localStorage fallback (eski orderlar uchun)
     const localFallback = safeJson(LS_FALLBACK_KEY, []);
     const fallbackOrders = (Array.isArray(localFallback) ? localFallback : [])
       .filter((order) => {
@@ -353,11 +493,10 @@ const init = async () => {
       window.__orders = fallbackOrders;
       renderOrders();
     } else if (!cached?.items?.length) {
+      window.__orders = [];
+      updateSummary([]);
       emptyState.classList.remove("hidden");
-      ordersList.innerHTML = offlineBlockHTML(
-        "Buyurtmalar yuklanmadi",
-        "Internetga ulanib qayta urinib ko‘ring."
-      );
+      ordersList.innerHTML = "";
     }
   }
 };
@@ -371,5 +510,5 @@ window.addEventListener("online", () => {
 });
 
 window.addEventListener("offline", () => {
-  if (offlineNotice) offlineNotice.classList.remove("hidden");
+  // "Internet yo'q" notice ko'rsatilmaydi
 });

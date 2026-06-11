@@ -3,75 +3,403 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anime shop — Orders</title>  
+    <title>Anime Shop — Buyurtmalar</title>
     <link rel="stylesheet" href="css/output.css" />
     <link rel="stylesheet" href="css/theme.css" />
+    <style>
+      /* ══════════════════════════════
+         ORDERS PAGE — PREMIUM DESIGN
+      ══════════════════════════════ */
+
+      /* Page heading — endi oddiy, scrollda card ustiga botmaydi */
+      .ord-sticky-hd {
+        padding: 12px 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        margin-bottom: 14px;
+      }
+      .ord-sticky-hd h1 {
+        font-size: 19px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -.02em;
+      }
+      .ord-badge {
+        background: linear-gradient(135deg,#7c3aed,#c084fc);
+        border-radius: 999px;
+        padding: 2px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(124,58,237,.3);
+      }
+
+      /* Summary stats */
+      .ord-summary {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .ord-sum-item {
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+          linear-gradient(180deg, rgba(18,14,42,.6), rgba(5,7,20,.65));
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px;
+        padding: 12px 8px;
+        text-align: center;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .ord-sum-n { font-size: 20px; font-weight: 900; color: #fff; line-height: 1.1; }
+      .ord-sum-l { font-size: 10px; font-weight: 600; color: rgba(247,244,255,.38); margin-top: 3px; text-transform: uppercase; letter-spacing: .04em; }
+
+      /* Order card */
+      .ord-card {
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+          linear-gradient(180deg, rgba(18,14,42,.6), rgba(5,7,20,.65));
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .ord-strip { height: 3px; width: 100%; }
+      .ord-card-body { padding: 14px; }
+
+      .ord-top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .ord-id-lbl { font-size: 10px; color: rgba(247,244,255,.35); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 3px; }
+      .ord-id-val { font-size: 13px; font-weight: 800; color: #e9d5ff; word-break: break-all; line-height: 1.3; }
+      .ord-date-wrap { text-align: right; flex-shrink: 0; }
+      .ord-date-lbl { font-size: 10px; color: rgba(247,244,255,.35); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 3px; }
+      .ord-date-val { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; }
+
+      .ord-mid-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 6px;
+      }
+      .ord-status {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 12px; border-radius: 999px;
+        font-size: 11.5px; font-weight: 800;
+        white-space: nowrap;
+      }
+      .ord-price-lbl { font-size: 10px; color: rgba(247,244,255,.35); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+      .ord-price-val { font-size: 17px; font-weight: 900; color: #fff; }
+
+      .ord-reject-reason {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(239,68,68,.08);
+        border: 1px solid rgba(239,68,68,.18);
+        font-size: 11.5px;
+        color: #fca5a5;
+        line-height: 1.5;
+      }
+
+      /* Item thumbnails row */
+      .ord-thumbs-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+        margin-bottom: 4px;
+        flex-wrap: wrap;
+      }
+      .ord-thumb {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.08);
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+      }
+      .ord-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+      .ord-thumb-more {
+        background: rgba(168,85,247,.12);
+        border-color: rgba(168,85,247,.22);
+        font-size: 11px; font-weight: 800; color: #c084fc;
+      }
+      .ord-items-count {
+        font-size: 11px;
+        color: rgba(247,244,255,.4);
+        font-weight: 600;
+        margin-left: 4px;
+      }
+
+      .ord-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,.05);
+      }
+      .ord-detail-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 9px 22px; border-radius: 12px;
+        background: linear-gradient(135deg,#7c3aed,#c084fc);
+        font-size: 12.5px; font-weight: 800; color: #fff;
+        border: none; cursor: pointer;
+        transition: filter .17s, transform .17s;
+        box-shadow: 0 4px 14px rgba(124,58,237,.3);
+      }
+      .ord-detail-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+      /* Empty state */
+      .ord-empty-inner {
+        text-align: center; padding: 60px 20px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+          linear-gradient(180deg, rgba(18,14,42,.6), rgba(5,7,20,.65));
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 24px;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .ord-empty-inner .ico { font-size: 52px; display: block; margin-bottom: 14px; }
+      .ord-empty-ttl { font-size: 17px; font-weight: 900; color: #fff; }
+      .ord-empty-sub { font-size: 13px; color: rgba(247,244,255,.38); margin-top: 6px; }
+      .ord-empty-btn {
+        display: inline-block; margin-top: 20px;
+        background: linear-gradient(135deg,#7c3aed,#c084fc);
+        border-radius: 14px; padding: 11px 28px;
+        font-size: 13px; font-weight: 800; color: #fff;
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(124,58,237,.3);
+      }
+
+      /* ══ MODAL — bottom sheet ══ */
+      #order-modal {
+        position: fixed; inset: 0; z-index: 300;
+        background: rgba(0,0,0,.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        align-items: flex-end;
+        justify-content: center;
+      }
+      #order-modal.hidden { display: none; }
+      #order-modal:not(.hidden) { display: flex; }
+
+      .modal-sheet {
+        width: 100%; max-width: 640px;
+        max-height: 90vh;
+        background: #0b0f2a;
+        border-radius: 28px 28px 0 0;
+        border: 1px solid rgba(255,255,255,.1);
+        border-bottom: none;
+        overflow: hidden;
+        display: flex; flex-direction: column;
+      }
+      #order-modal.open .modal-sheet {
+        animation: slideUp .26s cubic-bezier(.34,1.2,.64,1);
+      }
+      @keyframes slideUp {
+        from { transform: translateY(60px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      .modal-handle {
+        width: 40px; height: 4px; border-radius: 999px;
+        background: rgba(255,255,255,.2);
+        margin: 12px auto 0; flex-shrink: 0;
+      }
+      .modal-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 20px 12px; flex-shrink: 0;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+      }
+      .modal-head h2 { font-size: 16px; font-weight: 900; color: #fff; }
+      #modal-close {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+        color: rgba(247,244,255,.6); font-size: 14px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background .17s; border: none;
+      }
+      #modal-close:hover { background: rgba(239,68,68,.15); color: #fca5a5; }
+      .modal-body {
+        overflow-y: auto; padding: 16px 20px 40px; flex: 1;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(192,132,252,.3) transparent;
+      }
+      .modal-body::-webkit-scrollbar { width: 4px; }
+      .modal-body::-webkit-scrollbar-thumb { background: rgba(192,132,252,.3); border-radius: 999px; }
+
+      /* Modal sections */
+      .m-sec { margin-bottom: 14px; }
+      .m-sec-hd { font-size: 10px; font-weight: 800; color: rgba(192,132,252,.7); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+      .m-card { background: #131640; border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 14px; }
+      .m-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.045); font-size: 13px; }
+      .m-row:last-child { border-bottom: none; padding-bottom: 0; }
+      .m-row-lbl { color: rgba(247,244,255,.4); font-size: 12px; flex-shrink: 0; }
+      .m-row-val { color: #fff; font-weight: 700; text-align: right; word-break: break-all; max-width: 65%; }
+
+      .m-product { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.045); }
+      .m-product:last-child { border-bottom: none; padding-bottom: 0; }
+      .m-prod-img { width: 52px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+      .m-prod-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+      .m-prod-name { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3; }
+      .m-prod-meta { font-size: 11px; color: rgba(247,244,255,.42); margin-top: 3px; }
+      .m-prod-price { font-size: 14px; font-weight: 900; color: #c084fc; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+      .m-prod-qty { font-size: 13px; font-weight: 800; color: rgba(247,244,255,.55); margin-left: auto; flex-shrink: 0; }
+
+      .m-receipt {
+        display: flex; align-items: center; gap: 10px;
+        background: #131640; border: 1px solid rgba(255,255,255,.07);
+        border-radius: 14px; padding: 10px 14px;
+        text-decoration: none; color: #fff; font-size: 13px; font-weight: 700;
+        transition: background .17s;
+      }
+      .m-receipt:hover { background: #181c4a; }
+      .m-receipt img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+      .m-receipt span { flex: 1; }
+      .m-receipt svg { color: rgba(247,244,255,.4); flex-shrink: 0; }
+
+      .m-total { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; background: rgba(168,85,247,.08); border: 1px solid rgba(168,85,247,.2); border-radius: 14px; margin-top: 4px; margin-bottom: 0; }
+      .m-total-lbl { font-size: 13px; font-weight: 700; color: rgba(247,244,255,.7); }
+      .m-total-val { font-size: 19px; font-weight: 900; color: #fff; }
+
+      .m-admin-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; margin-top: 12px; padding: 13px;
+        background: rgba(41,182,246,.1); border: 1px solid rgba(41,182,246,.22);
+        border-radius: 14px; font-size: 13px; font-weight: 800;
+        color: #7dd3fc; text-decoration: none;
+        transition: background .17s;
+      }
+      .m-admin-btn:hover { background: rgba(41,182,246,.18); }
+
+      .m-status-banner {
+        display: flex; align-items: center; gap: 12px;
+        padding: 13px 16px; border-radius: 14px; margin-bottom: 16px;
+      }
+
+      /* Skeleton overrides */
+      #orders-list .skeleton,
+      #orders-list .detail-skeleton {
+        border-radius: 20px;
+      }
+    </style>
   </head>
   <body class="anime-bg text-white">
-    <!-- ====== NAVBAR ====== -->
-    <header class="fixed top-0 z-50 flex h-14 w-full items-center glass-soft px-4 md:hidden">
-      <a href="index.html" class="text-lg font-semibold text-white">Anime shop</a>
+
+    <!-- ══ MOBILE HEADER ══ -->
+    <header class="fixed top-0 z-50 flex h-14 w-full items-center px-4 md:hidden"
+      style="background:rgba(7,8,20,.95);border-bottom:1px solid rgba(255,255,255,.06);">
+      <a href="account.html" style="margin-right:10px;color:rgba(247,244,255,.55);font-size:22px;line-height:1;">‹</a>
+      <a href="index.html" class="text-lg font-semibold text-white">Anime Shop</a>
     </header>
-    <header class="hidden glass-soft md:block">
+
+    <!-- ══ DESKTOP HEADER ══ -->
+    <header class="hidden md:block" style="background:rgba(7,8,20,.95);border-bottom:1px solid rgba(255,255,255,.06);">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="index.html" class="text-xl font-bold text-white">Anime shop</a>
+        <a href="index.html" class="text-xl font-bold text-white">Anime Shop</a>
         <nav class="flex items-center gap-3 text-sm">
           <a href="index.html" class="text-slate-200 hover:text-white" data-i18n="home"></a>
           <a href="catalog.html" class="text-slate-200 hover:text-white" data-i18n="catalog"></a>
         </nav>
         <div class="flex items-center gap-4 text-sm">
-          <a href="cart.html" class="relative">
-            🛒
+          <a href="cart.html" class="relative">🛒
             <span class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-900" data-cart-count>0</span>
           </a>
           <a href="account.html" class="text-slate-200 hover:text-white" data-i18n="account"></a>
           <select data-lang-switch class="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-white">
-            <option value="uz">UZ</option>
-            <option value="ru">RU</option>
+            <option value="uz">UZ</option><option value="ru">RU</option>
           </select>
         </div>
       </div>
     </header>
 
-    <!-- ====== ORDERS ====== -->
-    <main class="bottom-safe mx-auto max-w-6xl space-y-6 px-4 pt-14 md:pt-20">
-      <h1 class="text-2xl font-semibold text-white" data-i18n="orders_title"></h1>
-      <div id="orders-offline" class="hidden rounded-2xl glass-soft px-4 py-2 text-xs text-white/80">
-        Internet yo‘q
+    <!-- ══ MAIN ══ -->
+    <main class="bottom-safe mx-auto max-w-6xl px-4 pt-14 pb-32 md:pt-20">
+
+      <!-- Sticky heading -->
+      <div class="ord-sticky-hd">
+        <h1 data-i18n="orders_title">Buyurtmalar tarixi</h1>
+        <span class="ord-badge" id="ord-badge">0</span>
       </div>
-      <div id="orders-empty" class="hidden rounded-2xl glass p-6 text-center text-sm text-white/80 shadow-sm" data-i18n="orders_empty"></div>
-      <div id="orders-list" class="space-y-4"></div>
+
+      <!-- offline notice — orders.js boshqaradi, lekin ko'rsatilmaydi -->
+      <div id="orders-offline" class="hidden"></div>
+
+      <!-- Summary stats -->
+      <div class="ord-summary" id="ord-summary" style="display:none;">
+        <div class="ord-sum-item">
+          <div class="ord-sum-n" id="sum-total">0</div>
+          <div class="ord-sum-l">Jami</div>
+        </div>
+        <div class="ord-sum-item">
+          <div class="ord-sum-n" id="sum-approved" style="color:#4ade80;">0</div>
+          <div class="ord-sum-l">Qabul</div>
+        </div>
+        <div class="ord-sum-item">
+          <div class="ord-sum-n" id="sum-pending" style="color:#fcd34d;">0</div>
+          <div class="ord-sum-l">Kutmoqda</div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="orders-empty" class="hidden" data-i18n="orders_empty">
+        <div class="ord-empty-inner">
+          <span class="ico">📦</span>
+          <div class="ord-empty-ttl">Hali buyurtma yo'q</div>
+          <div class="ord-empty-sub">Birinchi buyurtmangizni bering — u shu yerda ko'rinadi</div>
+          <a href="catalog.html" class="ord-empty-btn">🛍️ Xarid qilish</a>
+        </div>
+      </div>
+
+      <!-- Orders list — rendered by orders.js -->
+      <div id="orders-list"></div>
+
     </main>
 
-    <div id="order-modal" class="fixed inset-0 hidden bg-black/60">
-      <div class="mx-auto mt-24 max-w-lg rounded-2xl glass p-6 shadow-xl">
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-white" data-i18n="order_detail"></h2>
-          <button id="modal-close" class="text-slate-400">✕</button>
+    <!-- ══ DETAIL MODAL ══ -->
+    <div id="order-modal" class="hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-head">
+          <h2 data-i18n="order_detail">Buyurtma tafsiloti</h2>
+          <button id="modal-close">✕</button>
         </div>
-        <div id="modal-content" class="mt-4"></div>
+        <div class="modal-body">
+          <div id="modal-content"></div>
+        </div>
       </div>
     </div>
 
-    <!-- ====== BOTTOM NAV ====== -->
-    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border border-white/10 glass-soft md:hidden">
+    <!-- ══ BOTTOM NAV ══ -->
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 glass-soft md:hidden"
+      style="border-top:1px solid rgba(255,255,255,.07);">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 text-xs text-white/70">
-        <a href="index.html" class="nav-item">
-          <span>🏠</span>
-          <span data-i18n="home"></span>
+        <a href="index.html" class="nav-item flex flex-col items-center gap-1">
+          <span>🏠</span><span data-i18n="home">Bosh</span>
         </a>
-        <a href="catalog.html" class="nav-item">
-          <span>🛍️</span>
-          <span data-i18n="catalog"></span>
+        <a href="catalog.html" class="nav-item flex flex-col items-center gap-1">
+          <span>🛍️</span><span data-i18n="catalog">Tovarlar</span>
         </a>
-        <a href="cart.html" class="nav-item relative">
-          <span>🛒</span>
-          <span data-i18n="cart"></span>
+        <a href="cart.html" class="nav-item relative flex flex-col items-center gap-1">
+          <span>🛒</span><span data-i18n="cart">Karzinka</span>
           <span class="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-900" data-cart-count>0</span>
         </a>
-        <a href="account.html" class="nav-item">
-          <span>👤</span>
-          <span data-i18n="account"></span>
+        <a href="account.html" class="nav-item flex flex-col items-center gap-1">
+          <span>👤</span><span data-i18n="account">Account</span>
         </a>
       </div>
     </nav>
