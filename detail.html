@@ -47,9 +47,9 @@
         <p id="dDesc" class="hidden"></p>
       </section>
 
-      <section id="variant-block" class="hidden section -mt-2">
-        <label for="variantSelect" class="mb-2 block text-sm text-white/70">Variant / Size</label>
-        <select id="variantSelect" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white"></select>
+      <section id="variant-block" class="hidden dp-variant-card -mt-2">
+        <label for="variantSelect" class="dp-variant-label">🎨 Variant / Razmer tanlang</label>
+        <select id="variantSelect" class="dp-variant-select"></select>
       </section>
 
       <section id="comments-section" class="space-y-4">
@@ -104,40 +104,30 @@
       </section>
     </main>
 
-    <div id="detail-action-bar">
-      <div class="detail-bar-inner">
-        <div class="detail-price-box">
-          <p class="detail-price-label">Narx</p>
-          <p id="detail-action-price" class="detail-price-value">0 so'm</p>
+    <!-- ══ PASTKI BAR — Savatga qo'shish + Karzinkaga o'tish ══ -->
+    <div id="detail-action-bar" class="md:hidden">
+      <div class="dab-inner">
+
+        <!-- Narx -->
+        <div class="dab-price">
+          <span class="dab-label">Narxi</span>
+          <span id="detail-action-price" class="dab-value">0 so'm</span>
         </div>
 
-        <button id="detail-action-buy" class="detail-buy-btn">Sotib ol</button>
-        <button id="detail-action-cart" class="detail-cart-btn">Savatga</button>
+        <!-- Savatga qo'shish tugmasi -->
+        <button id="detail-action-buy" class="dab-add-btn" type="button">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span>Savatga qo'shish</span>
+        </button>
+
+        <!-- Karzinka — bosganda cart.html ga o'tadi -->
+        <a href="cart.html" id="detail-action-cart" class="dab-cart-link" aria-label="Karzinka">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="dab-cart-badge" data-cart-count>0</span>
+        </a>
+
       </div>
     </div>
-
-    <!-- ====== BOTTOM NAV ====== -->
-    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 border border-white/10 glass-soft md:hidden">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 text-xs text-white/70">
-        <a href="index.html" class="nav-item">
-          <span>🏠</span>
-          <span data-i18n="home"></span>
-        </a>
-        <a href="catalog.html" class="nav-item">
-          <span>🛍️</span>
-          <span data-i18n="catalog"></span>
-        </a>
-        <a href="cart.html" class="nav-item relative">
-          <span>🛒</span>
-          <span data-i18n="cart"></span>
-          <span class="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-900" data-cart-count>0</span>
-        </a>
-        <a href="account.html" class="nav-item">
-          <span>👤</span>
-          <span data-i18n="account"></span>
-        </a>
-      </div>
-    </nav>
 
     <!-- COMMENTS MODAL -->
     <div id="comments-modal" class="comments-modal hidden" aria-hidden="true">
@@ -341,6 +331,376 @@
           max-width: 96vw;
           max-height: 86vh;
         }
+      }
+
+      /* Gallery zoom hint */
+      .detail-main-media {
+        position: relative !important;
+      }
+      .dp-zoom-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: rgba(0,0,0,.5);
+        border: 1px solid rgba(255,255,255,.15);
+        color: rgba(255,255,255,.85);
+        font-size: 10.5px;
+        font-weight: 700;
+        backdrop-filter: blur(6px);
+        pointer-events: none;
+        opacity: .85;
+      }
+      @media (max-width: 480px) {
+        .dp-zoom-hint { font-size: 10px; padding: 4px 9px; bottom: 10px; right: 10px; }
+      }
+
+      /* ══════════════════════════════════════
+         PRODUCT INFO PANEL — SIMPLE & CLEAN
+      ══════════════════════════════════════ */
+      .dp-panel {
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+          linear-gradient(180deg, rgba(18,14,42,.6), rgba(5,7,20,.65));
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 20px;
+        padding: 18px;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .dp-top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .dp-cat-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 13px;
+        border-radius: 999px;
+        background: rgba(168,85,247,.12);
+        border: 1px solid rgba(168,85,247,.24);
+        color: #c084fc;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+      }
+      .dp-edit-btn {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: rgba(255,255,255,.05);
+        color: rgba(247,244,255,.8);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background .17s;
+      }
+      .dp-edit-btn:hover { background: rgba(168,85,247,.18); }
+
+      .dp-title {
+        font-size: clamp(1.15rem, 1.4vw + .9rem, 1.55rem);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.35;
+        letter-spacing: -.01em;
+      }
+
+      .dp-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .dp-rating-badge,
+      .dp-stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .dp-rating-badge {
+        background: rgba(245,158,11,.1);
+        border: 1px solid rgba(245,158,11,.24);
+        color: #fcd34d;
+      }
+      .dp-stock-badge {
+        background: rgba(34,197,94,.1);
+        border: 1px solid rgba(34,197,94,.24);
+        color: #4ade80;
+      }
+      .dp-stock-badge.low {
+        background: rgba(239,68,68,.1);
+        border-color: rgba(239,68,68,.24);
+        color: #f87171;
+      }
+
+      /* Price row — simple, plain text */
+      .dp-price-row {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,.06);
+      }
+      .dp-price-main {
+        font-size: clamp(1.3rem, 1.8vw + 1rem, 1.8rem);
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -.01em;
+      }
+      .dp-price-old {
+        font-size: 13px;
+        color: rgba(247,244,255,.4);
+        text-decoration: line-through;
+        font-weight: 600;
+      }
+      .dp-discount-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: rgba(34,197,94,.14);
+        border: 1px solid rgba(34,197,94,.28);
+        color: #4ade80;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      /* Description */
+      .dp-desc-card {
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,.06);
+      }
+      .dp-sec-hd {
+        font-size: 10.5px;
+        font-weight: 800;
+        color: rgba(192,132,252,.78);
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        margin-bottom: 8px;
+      }
+      .dp-desc-text {
+        font-size: 13.5px;
+        line-height: 1.75;
+        color: rgba(247,244,255,.65);
+        white-space: pre-line;
+      }
+
+      /* ══════════════════════════════════════
+         VARIANT SELECT — simple, consistent
+      ══════════════════════════════════════ */
+      .dp-variant-card {
+        padding: 16px 18px;
+        border-radius: 20px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+          linear-gradient(180deg, rgba(18,14,42,.6), rgba(5,7,20,.65));
+        border: 1px solid rgba(255,255,255,.07);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .dp-variant-label {
+        display: block;
+        font-size: 10.5px;
+        font-weight: 800;
+        color: #c084fc;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 10px;
+      }
+      .dp-variant-select {
+        width: 100%;
+        border-radius: 14px !important;
+        padding: 12px 16px;
+        background: rgba(255,255,255,.04) !important;
+        border: 1px solid rgba(255,255,255,.1) !important;
+        color: #fff !important;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c084fc' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 16px center !important;
+        padding-right: 40px !important;
+      }
+      .dp-variant-select:focus {
+        border-color: rgba(192,132,252,.5) !important;
+        box-shadow: 0 0 0 3px rgba(168,85,247,.15) !important;
+      }
+      /* "oq-oq" muammosi — option ranglari */
+      .dp-variant-select option {
+        background-color: #1a1033 !important;
+        color: #fff !important;
+      }
+
+      /* ══════════════════════════════════════
+         DETAIL ACTION BAR — pastga yopishgan, premium
+      ══════════════════════════════════════ */
+      #detail-action-bar {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        z-index: 70;
+        margin: 0 !important;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)),
+          rgba(8, 9, 22, 0.97);
+        backdrop-filter: blur(26px);
+        -webkit-backdrop-filter: blur(26px);
+        border-top: 1px solid rgba(255,255,255,.1);
+        box-shadow: 0 -8px 36px rgba(0,0,0,.5);
+      }
+
+      .dab-inner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        max-width: 680px;
+        margin: 0 auto;
+      }
+
+      /* Narx bloki */
+      .dab-price {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        flex-shrink: 0;
+        min-width: 0;
+      }
+      .dab-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: rgba(247,244,255,.42);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        line-height: 1;
+      }
+      .dab-value {
+        font-size: 21px;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.2;
+        white-space: nowrap;
+        letter-spacing: -.015em;
+      }
+
+      /* Savatga qo'shish */
+      .dab-add-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        height: 56px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 55%, #c084fc 100%);
+        border: none;
+        color: #fff;
+        font-size: 14.5px;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+        letter-spacing: .01em;
+        box-shadow:
+          0 8px 22px rgba(124,58,237,.45),
+          inset 0 1px 0 rgba(255,255,255,.2);
+        transition: filter .17s, transform .17s;
+        position: relative;
+        overflow: hidden;
+      }
+      .dab-add-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,.15), transparent 60%);
+        pointer-events: none;
+      }
+      .dab-add-btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+      }
+      .dab-add-btn:active {
+        transform: scale(.97);
+        filter: brightness(.95);
+      }
+      .dab-add-btn.added {
+        background: linear-gradient(135deg, #059669, #10b981) !important;
+        box-shadow: 0 8px 24px rgba(5,150,105,.45) !important;
+      }
+
+      /* Karzinka tugmasi */
+      .dab-cart-link {
+        position: relative;
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        border-radius: 17px;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-decoration: none;
+        transition: background .17s, transform .17s;
+      }
+      .dab-cart-link:hover {
+        background: rgba(255,255,255,.13);
+        transform: translateY(-1px);
+      }
+      .dab-cart-link:active { transform: scale(.97); }
+
+      .dab-cart-badge {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        min-width: 21px;
+        height: 21px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        border: 2.5px solid rgba(8,9,22,.98);
+        line-height: 1;
+        box-shadow: 0 2px 8px rgba(239,68,68,.5);
+      }
+      .dab-cart-badge[data-cart-count="0"] { display: none; }
+
+      /* Main pastki padding */
+      main.bottom-safe-lg {
+        padding-bottom: calc(96px + 1.5rem + env(safe-area-inset-bottom)) !important;
+      }
+      @media (min-width: 768px) {
+        #detail-action-bar { display: none; }
+        main.bottom-safe-lg { padding-bottom: 3rem !important; }
       }
     </style>
 

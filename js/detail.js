@@ -108,12 +108,21 @@ const syncSafeBottomSpace = () => {
   if (!main) return;
 
   const isMobile = window.innerWidth < 768;
+
+  // Endi "Sotib olish" bo'limi panelning ichida — fixed action bar yo'q.
+  // Faqat bottom-nav (mobil) uchun kichik joy qoldiramiz.
+  const MIN_MOBILE = 24;
+  const MIN_DESKTOP = 16;
+
   const actionBarHeight = actionBar ? actionBar.offsetHeight : 0;
   const bottomNavHeight = isMobile && bottomNav ? bottomNav.offsetHeight : 0;
 
-  const safeSpace = isMobile
-    ? actionBarHeight + bottomNavHeight + 28
-    : actionBarHeight + 24;
+  const measured = isMobile
+    ? actionBarHeight + bottomNavHeight + 24
+    : actionBarHeight + 16;
+
+  const floor = isMobile ? MIN_MOBILE : MIN_DESKTOP;
+  const safeSpace = Math.max(measured, floor);
 
   main.style.paddingBottom = `${safeSpace}px`;
 
@@ -203,7 +212,7 @@ const detailSkeletonHTML = `
         <div class="detail-skeleton shimmer h-14 w-14 rounded-[14px] flex-shrink-0"></div>
       </div>
     </div>
-    <div class="section min-w-0 space-y-3">
+    <div class="dp-panel min-w-0 space-y-3">
       <div class="detail-skeleton shimmer h-5 w-1/3 rounded"></div>
       <div class="detail-skeleton shimmer h-8 w-4/5 rounded"></div>
       <div class="detail-skeleton shimmer h-4 w-1/2 rounded"></div>
@@ -232,6 +241,7 @@ const renderGallery = (images, title) => {
           loading="eager"
           decoding="async"
         />
+        <span class="dp-zoom-hint">🔍 Kattalashtirish</span>
       </div>
 
       <div id="thumbs" class="detail-thumbs">
@@ -289,8 +299,6 @@ const addToCart = (product) => {
   const selectedImageUrl =
     selectedImage || galleryImages[selectedImageIndex] || product.images?.[0] || product.img || '';
 
-    console.log("VARIANT TEST:", selectedVariant);
-
   addCartLine({
     productId: String(product.id),
     id: String(product.id),
@@ -302,11 +310,11 @@ const addToCart = (product) => {
     selectedImageUrl: selectedImageUrl,
     qty: 1,
     ...(selectedVariant
-  ? {
-      variant: selectedVariant.name,   // 🔥 ENG MUHIM
-      variantPrice: Number(selectedVariant.price),
-    }
-  : {}),
+      ? {
+          variant: selectedVariant.name,
+          variantPrice: Number(selectedVariant.price),
+        }
+      : {}),
   });
 
   updateCartBadge();
@@ -495,7 +503,7 @@ const init = async () => {
   if (!productId) {
     errorBox.textContent = t('not_found');
     errorBox.classList.remove('hidden');
-    detailWrapper.innerHTML = `<div class="section text-center"><p>${t('not_found')}</p></div>`;
+    detailWrapper.innerHTML = `<div class="dp-panel text-center"><p>${t('not_found')}</p></div>`;
     return;
   }
 
@@ -549,7 +557,7 @@ const init = async () => {
   if (!product) {
     errorBox.textContent = t('not_found');
     errorBox.classList.remove('hidden');
-    detailWrapper.innerHTML = `<div class="section text-center"><h3 class="text-lg font-semibold">${t('not_found')}</h3><p class="mt-2 text-sm text-white/70">Mahsulot topilmadi yoki o‘chirib yuborilgan.</p></div>`;
+    detailWrapper.innerHTML = `<div class="dp-panel text-center"><h3 class="text-lg font-semibold text-white">${t('not_found')}</h3><p class="mt-2 text-sm text-white/70">Mahsulot topilmadi yoki o‘chirib yuborilgan.</p></div>`;
     return;
   }
 
@@ -564,54 +572,67 @@ const init = async () => {
   const discount = Number(product.discount ?? product.discountPercent);
   const hasDiscount = Number.isFinite(discount) && discount > 0;
   const description = product.desc || product.description || '';
-  const descriptionMarkup = description
-    ? `<p id="dDesc" class="text-white/70">${description}</p>`
-    : `<p id="dDesc" class="hidden"></p>`;
+
+  const stockNum = Number(product.stock);
+  const hasStock = Number.isFinite(stockNum);
+  const lowStock = hasStock && stockNum > 0 && stockNum <= 5;
+  const outOfStock = hasStock && stockNum <= 0;
 
   const currentUser = syncAdminState(getCurrentUser()) || getCurrentUser();
   const isAdmin = isAdminUser(currentUser);
   const adminEditMarkup = isAdmin
-    ? `<button id="detail-edit" class="rounded-full border border-white/20 px-3 py-1 text-xs text-white/80">✏️ Edit</button>`
+    ? `<button id="detail-edit" type="button" class="dp-edit-btn">✏️ Edit</button>`
     : '';
+
+  const ratingValue = product.rating ?? 4.8;
+
+  const stockBadgeHtml = hasStock
+    ? `<span class="dp-stock-badge ${outOfStock || lowStock ? 'low' : ''}">📦 ${
+        outOfStock ? "Tugagan" : `${stockNum} dona qoldi`
+      }</span>`
+    : '';
+
+  const priceRowHtml = `
+    <div class="dp-price-row">
+      <span id="detail-main-price" class="dp-price-main">${formatLocalPrice(product.price || 0)}</span>
+      ${
+        hasOldPrice
+          ? `<span class="dp-price-old">${oldPrice.toLocaleString(getLang() === 'ru' ? 'ru-RU' : 'uz-UZ')} so'm</span>`
+          : ''
+      }
+      ${hasDiscount ? `<span class="dp-discount-badge">-${discount}%</span>` : ''}
+    </div>
+  `;
+
+  const descriptionMarkup = description
+    ? `
+      <div class="dp-desc-card">
+        <div class="dp-sec-hd">📝 Tavsif</div>
+        <p id="dDesc" class="dp-desc-text">${description}</p>
+      </div>
+    `
+    : `<p id="dDesc" class="hidden"></p>`;
 
   detailWrapper.innerHTML = `
     <div class="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
       ${renderGallery(images, product.title)}
 
-      <div class="section min-w-0 flex flex-col gap-4">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0 flex-1">
-            <p class="text-sm text-white/70">${product.category || ''}</p>
-            <h1 class="font-bold text-white">${product.title || ''}</h1>
-          </div>
+      <div class="dp-panel min-w-0">
+        <div class="dp-top-row">
+          <span class="dp-cat-badge">${product.category || 'Mahsulot'}</span>
           ${adminEditMarkup}
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <span><span style="color:#facc15;">★</span> ${product.rating ?? 4.8}</span>
-          <span class="text-white/60">(stock: ${product.stock ?? '—'})</span>
+        <h1 class="dp-title">${product.title || ''}</h1>
+
+        <div class="dp-meta-row">
+          <span class="dp-rating-badge">⭐ ${ratingValue}</span>
+          ${stockBadgeHtml}
         </div>
+
+        ${priceRowHtml}
 
         ${descriptionMarkup}
-
-        <div class="price-row flex items-center gap-3">
-          <span id="detail-main-price" class="product-price font-bold text-white">${formatLocalPrice(product.price || 0)}</span>
-          ${
-            hasOldPrice
-              ? `<span class="text-sm text-slate-400 line-through">${oldPrice.toLocaleString(getLang() === 'ru' ? 'ru-RU' : 'uz-UZ')} so'm</span>`
-              : ''
-          }
-          ${
-            hasDiscount
-              ? `<span class="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-200">-${discount}%</span>`
-              : ''
-          }
-        </div>
-
-        <div class="rounded-2xl bg-white/5 p-4 text-sm text-white/70">
-          <p>${t('delivery_note')}</p>
-          <p>${t('warranty_note')}</p>
-        </div>
       </div>
     </div>
   `;
@@ -624,63 +645,56 @@ const init = async () => {
     wishlistBtn.textContent = isSaved ? `❤️ ${t('wishlist')}` : `🤍 ${t('wishlist')}`;
   }
 
-const actionPrice = document.querySelector('#detail-action-price');
-const actionCart = document.querySelector('#detail-action-cart');
-const actionBuy = document.querySelector('#detail-action-buy');
-const mainPrice = document.querySelector('#detail-main-price');
+  const actionPrice = document.querySelector('#detail-action-price');
+  const actionCart = document.querySelector('#detail-action-cart');
+  const actionBuy = document.querySelector('#detail-action-buy');
+  const mainPrice = document.querySelector('#detail-main-price');
 
-const variants = getProductVariants(product);
+  const variants = getProductVariants(product);
 
-// ✅ DEFAULT VARIANT
-selectedVariant = variants.length ? variants[0] : null;
+  // ✅ DEFAULT VARIANT
+  selectedVariant = variants.length ? variants[0] : null;
 
-// ✅ PRICE UPDATE
-const syncDisplayedPrice = () => {
-  const unitPrice = getActiveUnitPrice(product);
-  if (mainPrice) mainPrice.textContent = formatLocalPrice(unitPrice);
-  if (actionPrice) actionPrice.textContent = formatLocalPrice(unitPrice);
-};
+  // ✅ PRICE UPDATE
+  const syncDisplayedPrice = () => {
+    const unitPrice = getActiveUnitPrice(product);
+    if (mainPrice) mainPrice.textContent = formatLocalPrice(unitPrice);
+    if (actionPrice) actionPrice.textContent = formatLocalPrice(unitPrice);
+  };
 
-// ✅ VARIANT SELECT
-if (variantBlock && variantSelect) {
-  if (variants.length) {
-    variantBlock.classList.remove('hidden');
+  // ✅ VARIANT SELECT
+  if (variantBlock && variantSelect) {
+    if (variants.length) {
+      variantBlock.classList.remove('hidden');
 
-    variantSelect.innerHTML = variants
-      .map((variant, index) => `
-        <option value="${index}">
-          ${variant.name} — ${formatLocalPrice(variant.price)}
-        </option>
-      `)
-      .join('');
+      variantSelect.innerHTML = variants
+        .map(
+          (variant, index) => `
+            <option value="${index}">
+              ${variant.name} — ${formatLocalPrice(variant.price)}
+            </option>
+          `
+        )
+        .join('');
 
-    variantSelect.value = '0';
+      variantSelect.value = '0';
 
-    // 🔥 ENG MUHIM JOY
-    variantSelect.addEventListener('change', () => {
-      const index = Number(variantSelect.value) || 0;
-      selectedVariant = variants[index] || null;
-
-      console.log("SELECTED VARIANT:", selectedVariant); // test
-      syncDisplayedPrice();
-    });
-
-  } else {
-    variantBlock.classList.add('hidden');
-    variantSelect.innerHTML = '';
+      variantSelect.addEventListener('change', () => {
+        const index = Number(variantSelect.value) || 0;
+        selectedVariant = variants[index] || null;
+        syncDisplayedPrice();
+      });
+    } else {
+      variantBlock.classList.add('hidden');
+      variantSelect.innerHTML = '';
+    }
   }
-}
 
-// ✅ INITIAL PRICE
-syncDisplayedPrice();
+  // ✅ INITIAL PRICE
+  syncDisplayedPrice();
 
   if (actionCart) {
-    actionCart.setAttribute('type', 'button');
-    actionCart.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      addToCart(product);
-    });
+    // detail-action-cart endi <a href="cart.html"> — click listener shart emas
   }
 
   if (actionBuy) {
@@ -689,6 +703,14 @@ syncDisplayedPrice();
       event.preventDefault();
       event.stopPropagation();
       addToCart(product);
+      // Qo'shildi animatsiyasi
+      actionBuy.classList.add('added');
+      const origHTML = actionBuy.innerHTML;
+      actionBuy.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Qo'shildi!</span>`;
+      setTimeout(() => {
+        actionBuy.classList.remove('added');
+        actionBuy.innerHTML = origHTML;
+      }, 1400);
     });
   }
 
@@ -729,12 +751,14 @@ syncDisplayedPrice();
   }
 
   setTimeout(syncSafeBottomSpace, 50);
+  setTimeout(syncSafeBottomSpace, 300);
 };
 
 init();
 
 window.addEventListener('resize', syncSafeBottomSpace);
 window.addEventListener('orientationchange', syncSafeBottomSpace);
+window.addEventListener('load', syncSafeBottomSpace);
 
 window.addEventListener('langChanged', () => {
   init();

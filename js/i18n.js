@@ -16,7 +16,7 @@ export const translations = {
     hero_subtitle: 'Yangi kelgan mahsulotlar, tezkor checkout va chiroyli UX.',
     hero_cta: 'Katalogga o‘tish',
     catalog_title: 'Katalog',
-    catalog_subtitle: 'Infinite scroll + filterlar',
+    catalog_subtitle: 'Shop',
     recommended_title: 'Tavsiya qilinganlar',
     add_to_cart: 'Savatga',
     details: 'Batafsil',

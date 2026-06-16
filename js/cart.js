@@ -21,6 +21,7 @@ const summaryBox = document.querySelector('#summary-box');
 const emptyState = document.querySelector('#empty-state');
 const promoInput = document.querySelector('#promo-code');
 const promoButton = document.querySelector('#apply-promo');
+const cartCountBadge = document.querySelector('#cart-count-badge');
 
 let productsMap = new Map();
 let discountPercent = 0;
@@ -55,6 +56,7 @@ const fetchProductsFromFirestore = async () => {
   }
 };
 
+// ====== SUMMARY ======
 const calculateTotals = () => {
   const cart = getCart();
   const subtotal = cart.reduce((sum, item) => {
@@ -66,35 +68,54 @@ const calculateTotals = () => {
   const total = subtotal - discount;
 
   summaryBox.innerHTML = `
-    <div class="space-y-2 text-sm text-slate-300">
-      <div class="flex justify-between"><span>${t('subtotal')}</span><span>${formatPrice(subtotal)} so'm</span></div>
-      <div class="flex justify-between"><span>${t('discount')}</span><span>-${formatPrice(discount)} so'm</span></div>
+    <div class="summary-row">
+      <span>${t('subtotal') || 'Mahsulotlar narxi'}</span>
+      <span class="val">${formatPrice(subtotal)} so'm</span>
     </div>
-    <div class="mt-4 flex justify-between text-lg font-bold text-white">
-      <span>${t('total')}</span><span>${formatPrice(total)} so'm</span>
+    ${
+      discountPercent > 0
+        ? `<div class="summary-row discount">
+             <span>${t('discount') || 'Chegirma'} (${discountPercent}%)</span>
+             <span class="val">-${formatPrice(discount)} so'm</span>
+           </div>`
+        : ''
+    }
+    <div class="summary-divider"></div>
+    <div class="summary-total">
+      <span class="lbl">${t('total') || 'Jami'}</span>
+      <span class="val">${formatPrice(total)} so'm</span>
     </div>
-    <a href="checkout.html" class="mt-4 block rounded-xl bg-white px-4 py-3 text-center text-sm font-semibold text-slate-900 hover:bg-slate-100">${t(
-      'checkout'
-    )}</a>
+    <a href="checkout.html" class="checkout-btn">
+      ${t('checkout') || 'Buyurtma berish'}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
   `;
 };
 
+// ====== RENDER ======
 const renderCart = () => {
   const cart = getCart();
+
+  // Update badge near heading
+  const totalQty = cart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0);
+  if (cartCountBadge) cartCountBadge.textContent = totalQty;
+
   if (!cart.length) {
     emptyState?.classList.remove('hidden');
-    if (cartList) cartList.innerHTML = '<p class="text-sm text-slate-300">Savatingiz bo‘sh. Katalogga qayting.</p>';
+    if (cartList) cartList.innerHTML = '';
     if (summaryBox) summaryBox.innerHTML = '';
     return;
   }
 
   emptyState?.classList.add('hidden');
+
   cartList.innerHTML = cart
     .map((item) => {
       const product = productsMap.get(String(item.productId || item.id));
       const title = item.title || product?.title || 'Mahsulot';
       const category = product?.category || item.category || '';
       const price = Number(item.variantPrice ?? item.price ?? product?.price ?? 0);
+      const qty = Number(item.qty) || 1;
       const image =
         item.image ||
         item.selectedImageUrl ||
@@ -106,56 +127,38 @@ const renderCart = () => {
 
       if (!product && item.productId == null && item.id == null) return '';
 
-      return `
-  <div class="flex flex-col gap-4 rounded-2xl glass p-4 shadow-sm md:flex-row md:items-center cart-item">
-    <div class="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm">
-      <img
-        src="${image}"
-        alt="${title}"
-        class="h-full w-full rounded-xl object-contain"
-        width="112"
-        height="112"
-        loading="lazy"
-      />
-    </div>
-
-    <div class="flex-1">
-      <h3 class="text-sm font-semibold text-white">${title}</h3>
-      <p class="text-xs text-slate-300">${category}</p>
-
-      ${
-        (item.variantName ||
+      const variant =
+        item.variantName ||
         item.variant ||
         item.size ||
         item.selectedVariant ||
         item.selectedOption ||
-        item.option)
-        ? `<p class="mt-1 text-xs text-white/60">
-            Variant: ${
-              item.variantName ||
-              item.variant ||
-              item.size ||
-              item.selectedVariant ||
-              item.selectedOption ||
-              item.option
-            }
-          </p>`
-        : ''
-      }
+        item.option ||
+        '';
 
+      return `
+  <div class="cart-item">
+    <div class="cart-item-img">
+      <img src="${image}" alt="${title}" loading="lazy" onerror="this.style.opacity='0.2'" />
     </div>
 
-    <div class="text-sm font-semibold text-white">${formatPrice(price)} so'm</div>
-
-    <div class="flex items-center gap-2">
-      <button class="qty-btn h-8 w-8 rounded-lg border border-slate-700 text-slate-200" data-qty-minus="${item.cartItemId}">-</button>
-      <span class="min-w-[24px] text-center">${item.qty || 1}</span>
-      <button class="qty-btn h-8 w-8 rounded-lg border border-slate-700 text-slate-200" data-qty-plus="${item.cartItemId}">+</button>
+    <div class="cart-item-info">
+      <h3 class="cart-item-title">${title}</h3>
+      ${category ? `<p class="cart-item-cat">${category}</p>` : ''}
+      ${variant ? `<span class="cart-item-variant">${variant}</span>` : ''}
+      <div class="cart-item-price">${formatPrice(price)} so'm</div>
     </div>
 
-    <button class="remove-btn text-sm text-rose-400" data-remove-cart="${item.cartItemId}">
-      ${t('delete')}
-    </button>
+    <div class="cart-item-right">
+      <div class="qty-stepper">
+        <button class="qty-btn" data-qty-minus="${item.cartItemId}">−</button>
+        <span class="qty-val">${qty}</span>
+        <button class="qty-btn" data-qty-plus="${item.cartItemId}">+</button>
+      </div>
+      <button class="remove-btn" data-remove-cart="${item.cartItemId}">
+        🗑️ ${t('delete') || "O'chirish"}
+      </button>
+    </div>
   </div>
 `;
     })
@@ -177,7 +180,7 @@ const removeItem = (cartItemId) => {
   removeCartItem(cartItemId);
   renderCart();
   updateCartBadge();
-  showToast(t('removed'));
+  showToast(t('removed') || "O'chirildi");
 };
 
 const init = async () => {
@@ -197,12 +200,12 @@ cartList?.addEventListener('click', (event) => {
 
 promoButton?.addEventListener('click', () => {
   const code = promoInput.value.trim().toUpperCase();
-  if (code === 'Anime10') {
+  if (code === 'ANIME10') {
     discountPercent = 10;
-    showToast(t('promo_success'));
+    showToast(t('promo_success') || "Promo kod qo'llandi!");
   } else {
     discountPercent = 0;
-    showToast(t('promo_error'), 'error');
+    showToast(t('promo_error') || "Promo kod noto'g'ri", 'error');
   }
   calculateTotals();
 });
